@@ -1,63 +1,175 @@
-# Stack-processor
-Algorithms and Data Structures - project 2024/2025
+# Stack Processor Emulator
+**Algorithms and Data Structures – Project 2024/2025**
 
-Stack Processor
-The Gedanum state has decided to conquer space. In the first stage, it plans to send a number of probes that will search for planets suitable for colonization. The probes must be intelligent and energy-efficient, so a new processor is needed to control them. The commission of Experts Technology Interstellar was commissioned to design it. After many hours of hard work and numerous flashes of genius, the Stack Translator Of Symbols, model AaD5, was created. It still requires a lot of work to start mass production, but in order not to waste time, you were commissioned to write an emulator of this processor. Thanks to it, the creation of probe control systems can begin much faster.
+## Project Overview
 
-The processor has a program memory, an instruction pointer, and a stack. Program memory stores the program. A program is a sequence of instructions, and each instruction is one character. The instruction pointer stores the number of the instruction that will be executed next, and increments by one after each execution (for most instructions). The processor terminates when the instruction pointer points beyond the last instruction in the program. The first instruction is numbered 0.
+The **Gedanum state** has decided to begin conquering space. As the first step, a number of probes will be sent to search for planets suitable for colonization.
 
-The stack stores data for calculations. The stack elements are lists containing zero or more characters (digits, letters, and other symbols). If the list contains only digits and at most one '-' (minus) character at the end, we say that such a list contains a number. The youngest digit of the number is stored in the first position of the list, so the number -1234 is stored as a list 4321-.
+These probes must be both **intelligent** and **energy-efficient**, which requires designing a new processor architecture to control them.
 
-It can be assumed that all programs will be correct, i.e. there will be no situations not foreseen in the instruction list.
+For this purpose, the **Experts Technology Interstellar Commission** designed a new processor:
 
-The list of processor instructions is as follows:
+> **Stack Translator Of Symbols – model AaD5**
 
-| Symbol | Instrukcja | Opis |
-| :---: | :--- | :--- |
+Although the processor still requires further development before entering mass production, an **emulator** is needed so that software for the probes can already be developed.
+
+Your task is to **implement an emulator of this processor**.
+
+---
+
+# Processor Architecture
+
+The processor consists of three main components:
+
+- **Program Memory** – stores the program
+- **Instruction Pointer (IP)** – points to the instruction currently being executed
+- **Stack** – stores data used during program execution
+
+### Program Memory
+
+A program is a **sequence of instructions**, where each instruction is represented by **a single character**.
+
+Execution rules:
+
+- The **first instruction has index `0`**
+- After executing an instruction, the **instruction pointer increases by 1**
+- The processor **terminates** when the instruction pointer goes beyond the last instruction in the program
+
+---
+
+# Stack Structure
+
+The stack stores **lists of characters**.
+
+Each stack element is a list containing **zero or more characters**, which may include:
+
+- digits
+- letters
+- other symbols
+
+### Numbers on the Stack
+
+A list represents a **number** if:
+
+- it contains **only digits**
+- it contains **at most one `-` character**
+- if present, `-` must appear **at the end of the list**
+
+Numbers are stored **in reverse order**:
+
+Example:
+
+```
+Number: -1234
+Stored as: 4321-
+```
+
+The **least significant digit appears first** in the list.
+
+---
+
+# Processor Instructions
+
+The processor operates using **single-character instructions**.
+
+| Symbol | Instruction | Description |
+|:---:|---|---|
 | **'** | apostrophe | push an empty list on the stack |
 | **,** | comma | pop a list from the stack |
-| **:** | colon | put a copy of the list on the top of the stack |
-| **;** | semicolon | swap the places of the list on the top of the stack and the list directly below it |
-| **@** | at | pop the number A off the stack, then put a copy of the list on the A-th position on the stack (0 is the top of the stack, 1 is the list directly below it etc.); program '0@ is equivalent to the instruction : |
-| **.** | dot | read a character from standard input and append it to the beginning of the list on the top of the stack |
-| **>** | greater than | write the first character from the list on the top of the stack to standard output and pop the list off the top of the stack |
-| **!** | exclamation mark | logical negation: if the top of the stack is an empty list or a list containing a single character '0', replace it with a list containing the character '1'; otherwise replace the list on the top of the stack with a list containing the character '0' |
-| **<** | less than | pop number A off the stack, pop number B off the stack, if B < A put number 1 on the stack, otherwise put number 0 on the stack |
-| **=** | equal | pop number A off the stack, pop number B off the stack, if B = A put number 1 on the stack, otherwise put number 0 on the stack |
-| **~** | tilde | put a number equal to the number of this instruction (the value of the instruction pointer) on the stack |
-| **?** | question mark | conditional jump: pop number T off the stack pop list W off the stack if W is not empty and does not contain only the character '0' put number T into the instruction pointer and do not increment the instruction pointer |
-| **-** | minus | negation: if the last character of the top list is '-' (minus) remove it from the list; otherwise append '-' to the end of the list at the top of the stack |
-| **^** | caret | absolute value: if the last character of the top list is '-' (minus) remove it from the list |
-| **$** | dollar | split: detach the first character from the top list and push it onto the stack |
-| **#** | hash | pop list A off the stack; append A to the end of the list at the top of the stack |
-| **+** | plus | pop number A off the stack; pop number B off the stack; put number A + B on the stack |
-| **&** | ampersand | print the contents of the stack to the standard output in the format: `n: list`, ..., `0: list` (starting with the first character) |
-| **]** | right square bracket | pop number A off the stack; put the character with the ASCII number A on the stack |
-| **[** | left square bracket | pop list A off the stack; put the number equal to the ASCII number of the first character from list A on the stack |
-|  | remaining characters | append this character to the top of the list at the top of the stack |Input
+| **:** | colon | duplicate the top list on the stack |
+| **;** | semicolon | swap the top two lists on the stack |
+| **@** | at | pop number **A** and push a copy of the list at position **A** on the stack |
+| **.** | dot | read a character from input and append it to the beginning of the top list |
+| **>** | greater than | print the first character of the top list and remove the list |
+| **!** | exclamation mark | logical negation |
+| **<** | less than | compare two numbers: push `1` if `B < A`, otherwise `0` |
+| **=** | equal | compare two numbers: push `1` if `B = A`, otherwise `0` |
+| **~** | tilde | push the current instruction pointer value onto the stack |
+| **?** | question mark | conditional jump |
+| **-** | minus | change the sign of the number |
+| **^** | caret | absolute value |
+| **$** | dollar | split the first character from the top list |
+| **#** | hash | append list A to the list below it |
+| **+** | plus | add two numbers |
+| **&** | ampersand | print the entire stack |
+| **]** | right bracket | convert ASCII code to character |
+| **[** | left bracket | convert character to ASCII code |
+| other | character | append the character to the top list |
 
-The first line of input contains the program to be executed. The second line will contain the characters that will be fed to the program's standard input. Neither the program nor the program's input will contain whitespace.
-Output
-The output should be everything that the processor would write to the standard output.
-Rules and scoring
-The program should not use STL (except for input and output handling) or arrays (the array can only be used to store the program and input data). Except for reading input, the for/while/do...while loop can be used at most once (recursion should be used).
+---
 
+# Input Format
 
-Example
-Input:
+The program reads input in two lines:
+
+```
+<program>
+<input characters>
+```
+
+Where:
+
+- **Line 1** – the processor program (sequence of instructions)
+- **Line 2** – characters that will be provided as **standard input**
+
+Restrictions:
+
+- Neither the program nor the input contain whitespace characters.
+
+---
+
+# Output
+
+The output should contain **exactly what the processor writes to standard output** during execution.
+
+---
+
+# Implementation Rules
+
+The implementation must follow several restrictions:
+
+- **STL containers are not allowed** (except for input/output handling)
+- **Arrays cannot be used**, except for storing:
+  - the program
+  - the input data
+- Loops (`for`, `while`, `do...while`) may be used **at most once**, and only for reading input
+- The program logic should be implemented **using recursion**
+
+---
+
+# Examples
+
+## Example 1
+
+### Input
+
+```
 '123'-456&+&
+```
 
+### Output
 
-Output:
+```
 1: 321
 0: 654-
 0: 333-
+```
 
-Input:
+---
+
+## Example 2
+
+### Input
+
+```
 '...&$&
 123
+```
 
-Output:
+### Output
+
+```
 0: 321
 1: 21
 0: 3
+```
